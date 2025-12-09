@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
+import { fetchPostsApi } from "../entities/posts/api/postsApi"
+import { fetchUsersApi } from "../entities/users/api/usersApi"
 import {
   Button,
   Card,
@@ -24,7 +26,7 @@ import {
   TableHeader,
   TableRow,
   Textarea,
-} from "../components"
+} from "../shared/ui"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -97,6 +99,26 @@ const PostsManager = () => {
       })
   }
 
+  const loadPosts = () => {
+    setLoading(true)
+
+    Promise.all([fetchPostsApi(limit, skip), fetchUsersApi()])
+      .then(([postsData, usersData]) => {
+        const postsWithUsers = postsData.posts.map((post) => ({
+          ...post,
+          author: usersData.users.find((user) => user.id === post.userId),
+        }))
+        setPosts(postsWithUsers)
+        setTotal(postsData.total)
+      })
+      .catch((error) => {
+        console.error("ê²Œì‹œë¬?ê°€?¸ì˜¤ê¸??¤ë¥˜:", error)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
+
   // 태그 가져오기
   const fetchTags = async () => {
     try {
@@ -111,7 +133,7 @@ const PostsManager = () => {
   // 게시물 검색
   const searchPosts = async () => {
     if (!searchQuery) {
-      fetchPosts()
+      loadPosts()
       return
     }
     setLoading(true)
@@ -129,7 +151,7 @@ const PostsManager = () => {
   // 태그별 게시물 가져오기
   const fetchPostsByTag = async (tag) => {
     if (!tag || tag === "all") {
-      fetchPosts()
+      loadPosts()
       return
     }
     setLoading(true)
@@ -311,7 +333,7 @@ const PostsManager = () => {
     if (selectedTag) {
       fetchPostsByTag(selectedTag)
     } else {
-      fetchPosts()
+      loadPosts()
     }
     updateURL()
   }, [skip, limit, sortBy, sortOrder, selectedTag])
