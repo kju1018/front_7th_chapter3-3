@@ -3,6 +3,8 @@ import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from
 import { useLocation, useNavigate } from "react-router-dom"
 import { fetchPostsApi } from "../entities/posts/api/postsApi"
 import { fetchUsersApi } from "../entities/users/api/usersApi"
+import { useAtom } from "jotai"
+import { postsAtom, postsTotalAtom } from "../entities/posts/model/postsAtoms"
 import {
   Button,
   Card,
@@ -34,8 +36,8 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search)
 
   // 상태 관리
-  const [posts, setPosts] = useState([])
-  const [total, setTotal] = useState(0)
+  const [posts, setPosts] = useAtom(postsAtom)
+  const [total, setTotal] = useAtom(postsTotalAtom)
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")

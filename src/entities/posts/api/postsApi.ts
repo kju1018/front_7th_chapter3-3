@@ -1,5 +1,7 @@
+import { Post } from "../model/types"
+
 export interface PostsResponse {
-  posts: any[]
+  posts: Post[]
   total: number
 }
 
