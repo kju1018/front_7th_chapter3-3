@@ -3,7 +3,30 @@ import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAtom, useAtomValue } from "jotai"
 import { postsTotalAtom } from "../entities/posts/model/postsAtoms"
-import { Button, Card, CardContent, CardHeader, CardTitle, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Textarea } from "../shared/ui"
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Textarea,
+} from "../shared/ui"
 import { PostsTable } from "../widgets/posts/ui/PostsTable"
 import { postsWithAuthorAtom, PostWithAuthor } from "../features/posts/model/postsViewAtoms"
 import { usePostsList } from "../features/posts/model/usePostsList"
@@ -13,7 +36,7 @@ import { tagsAtom } from "../entities/tags/model/tagsAtoms"
 import { highlightText } from "../shared/lib/highlightText"
 import { useComments } from "../entities/comments/model/useComments"
 import { useCommentActions } from "../features/comments/model/useCommentActions"
-import { User } from "../entities/users/model/types"
+import { User, UserDetail } from "../entities/users/model/types"
 import { PostAddDialog } from "../features/posts/ui/PostAddDialog"
 import { PostEditDialog } from "../features/posts/ui/PostEditDialog"
 import { CommentAddDialog } from "../features/comments/ui/CommentAddDialog"
@@ -21,6 +44,7 @@ import { CommentEditDialog } from "../features/comments/ui/CommentEditDialog"
 import { PostDetailDialog } from "../features/posts/ui/PostDetailDialog"
 import { UserDialog } from "../entities/users/ui/UserDialog"
 import { commentsAtom } from "../entities/comments/model/commentsAtoms"
+import { fetchUserByIdApi } from "../entities/users/api/usersApi"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -56,7 +80,7 @@ const PostsManager = () => {
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState(null)
+  const [selectedUser, setSelectedUser] = useState<UserDetail | null>(null)
   const {
     loadPosts: loadPostsFromHook,
     searchPosts: searchPostsFromHook,
@@ -133,7 +157,7 @@ const PostsManager = () => {
   // 게시물 업데이트
   const updatePost = async () => {
     try {
-      if(!selectedPost) return
+      if (!selectedPost) return
       await updatePostFromHook(selectedPost)
       setShowEditDialog(false)
     } catch (error) {
@@ -200,8 +224,7 @@ const PostsManager = () => {
   // 사용자 모달 열기
   const openUserModal = async (user: User) => {
     try {
-      const response = await fetch(`/api/users/${user.id}`)
-      const userData = await response.json()
+      const userData = await fetchUserByIdApi(user.id)
       setSelectedUser(userData)
       setShowUserModal(true)
     } catch (error) {
