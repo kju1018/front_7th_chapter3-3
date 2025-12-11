@@ -63,7 +63,7 @@ const PostsManager = () => {
         setTotal(postsData.total)
       })
       .catch((error) => {
-        console.error("ê²Œì‹œë¬?ê°€?¸ì˜¤ê¸??¤ë¥˜:", error)
+        console.error("게시물 가져오기 오류:", error)
       })
       .finally(() => {
         setLoading(false)

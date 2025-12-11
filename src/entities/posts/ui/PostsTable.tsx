@@ -25,7 +25,7 @@ export const PostsTable = ({
   onDeletePost,
   renderHighlightedText,
 }: PostsTableProps) => (
-  <>
+  <Table>
     <TableHeader>
       <TableRow>
         <TableHead className="w-[50px]">ID</TableHead>
@@ -51,5 +51,5 @@ export const PostsTable = ({
         />
       ))}
     </TableBody>
-  </>
+  </Table>
 )
