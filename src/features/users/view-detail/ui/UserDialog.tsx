@@ -1,5 +1,5 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../shared/ui"
-import type { UserDetail } from "../model/types"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../../shared/ui"
+import type { UserDetail } from "../../../entities/users/model/types"
 
 interface UserDialogProps {
   open: boolean
@@ -42,3 +42,4 @@ export const UserDialog = ({ open, onOpenChange, user }: UserDialogProps) => (
     )}
   </Dialog>
 )
+

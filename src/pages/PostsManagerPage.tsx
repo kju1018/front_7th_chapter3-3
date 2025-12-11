@@ -3,7 +3,18 @@ import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAtom, useAtomValue } from "jotai"
 import { postsTotalAtom } from "../entities/posts/model/postsAtoms"
-import { Button, Card, CardContent, CardHeader, CardTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../shared/ui"
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../shared/ui"
 import { PostsTable } from "../widgets/posts/ui/PostsTable"
 import { postsWithAuthorAtom, PostWithAuthor } from "../features/posts/model/postsViewAtoms"
 import { usePostsList } from "../features/posts/model/usePostsList"
@@ -18,7 +29,7 @@ import { PostEditDialog } from "../features/posts/ui/PostEditDialog"
 import { CommentAddDialog } from "../features/comments/ui/CommentAddDialog"
 import { CommentEditDialog } from "../features/comments/ui/CommentEditDialog"
 import { PostDetailDialog } from "../features/posts/ui/PostDetailDialog"
-import { UserDialog } from "../entities/users/ui/UserDialog"
+import { UserDialog } from "../features/users/view-detail/ui/UserDialog"
 import { PostsFilters } from "../widgets/posts/ui/PostsFilters"
 import { PostsPagination } from "../widgets/posts/ui/PostsPagination"
 import { commentsAtom } from "../entities/comments/model/commentsAtoms"
