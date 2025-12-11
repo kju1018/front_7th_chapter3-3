@@ -12,3 +12,13 @@ export interface Post {
   reactions?: PostReactions
 }
 
+export interface PostsResponse {
+  posts: Post[]
+  total: number
+}
+
+export interface AddPostPayload {
+  title: string
+  body: string
+  userId: number
+}

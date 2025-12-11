@@ -7,6 +7,7 @@ import { Button, Card, CardContent, CardHeader, CardTitle, Dialog, DialogContent
 import { PostsTable } from "../entities/posts/ui/PostsTable"
 import { postsWithAuthorAtom } from "../features/posts/model/postsViewAtoms"
 import { usePostsList } from "../features/posts/model/usePostsList"
+import { newPostAtom } from "../features/posts/model/postFormAtoms"
 import { useTagsList } from "../entities/tags/model/useTagsList"
 import { tagsAtom } from "../entities/tags/model/tagsAtoms"
 
@@ -17,7 +18,7 @@ const PostsManager = () => {
 
   // 상태 관리
   const [posts, setPosts] = useAtom(postsWithAuthorAtom)
-  const [total, setTotal] = useAtom(postsTotalAtom)
+  const total = useAtomValue(postsTotalAtom)
   const tags = useAtomValue(tagsAtom)
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
@@ -27,7 +28,7 @@ const PostsManager = () => {
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
-  const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
+  const [newPost, setNewPost] = useAtom(newPostAtom)
   const [loading, setLoading] = useState(false)
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const [comments, setComments] = useState({})
@@ -38,7 +39,12 @@ const PostsManager = () => {
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
-  const { loadPosts: loadPostsFromHook } = usePostsList()
+  const {
+    loadPosts: loadPostsFromHook,
+    searchPosts: searchPostsFromHook,
+    loadPostsByTag: loadPostsByTagFromHook,
+    addPost: addPostFromHook,
+  } = usePostsList()
   const { loadTags } = useTagsList()
 
   // URL 업데이트 함수
@@ -71,58 +77,36 @@ const PostsManager = () => {
     }
     setLoading(true)
     try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`)
-      const data = await response.json()
-      setPosts(data.posts)
-      setTotal(data.total)
+      await searchPostsFromHook({ query: searchQuery })
     } catch (error) {
-      console.error("게시물 검색 오류:", error)
+      console.error("게시물 검색 실패:", error)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
-
   // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (tag) => {
+  const fetchPostsByTag = async (tag: string) => {
     if (!tag || tag === "all") {
       loadPosts()
       return
     }
     setLoading(true)
     try {
-      const [postsResponse, usersResponse] = await Promise.all([
-        fetch(`/api/posts/tag/${tag}`),
-        fetch("/api/users?limit=0&select=username,image"),
-      ])
-      const postsData = await postsResponse.json()
-      const usersData = await usersResponse.json()
-
-      const postsWithUsers = postsData.posts.map((post) => ({
-        ...post,
-        author: usersData.users.find((user) => user.id === post.userId),
-      }))
-
-      setPosts(postsWithUsers)
-      setTotal(postsData.total)
+      await loadPostsByTagFromHook({ tag })
     } catch (error) {
-      console.error("태그별 게시물 가져오기 오류:", error)
+      console.error("태그별 게시물 가져오기 실패:", error)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   // 게시물 추가
   const addPost = async () => {
     try {
-      const response = await fetch("/api/posts/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
-      })
-      const data = await response.json()
-      setPosts([data, ...posts])
+      await addPostFromHook(newPost)
       setShowAddDialog(false)
-      setNewPost({ title: "", body: "", userId: 1 })
     } catch (error) {
-      console.error("게시물 추가 오류:", error)
+      console.error("게시물 추가 실패:", error)
     }
   }
 
