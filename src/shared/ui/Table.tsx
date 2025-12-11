@@ -1,7 +1,8 @@
 import * as React from "react"
 import { forwardRef } from "react"
+import type { HTMLAttributes, TableHTMLAttributes, ThHTMLAttributes, TdHTMLAttributes } from "react"
 
-export const Table = forwardRef<HTMLTableElement, React.TableHTMLAttributes<HTMLTableElement>>(
+export const Table = forwardRef<HTMLTableElement, TableHTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
     <div className="w-full overflow-auto">
       <table ref={ref} className={`table-fixed w-full caption-bottom text-sm ${className}`} {...props} />
@@ -10,21 +11,21 @@ export const Table = forwardRef<HTMLTableElement, React.TableHTMLAttributes<HTML
 )
 Table.displayName = "Table"
 
-export const TableHeader = forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
+export const TableHeader = forwardRef<HTMLTableSectionElement, HTMLAttributes<HTMLTableSectionElement>>(
   ({ className, ...props }, ref) => (
     <thead ref={ref} className={`[&_tr]:border-b ${className}`} {...props} />
   ),
 )
 TableHeader.displayName = "TableHeader"
 
-export const TableBody = forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
+export const TableBody = forwardRef<HTMLTableSectionElement, HTMLAttributes<HTMLTableSectionElement>>(
   ({ className, ...props }, ref) => (
     <tbody ref={ref} className={`[&_tr:last-child]:border-0 ${className}`} {...props} />
   ),
 )
 TableBody.displayName = "TableBody"
 
-export const TableRow = forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(
+export const TableRow = forwardRef<HTMLTableRowElement, HTMLAttributes<HTMLTableRowElement>>(
   ({ className, ...props }, ref) => (
     <tr
       ref={ref}
@@ -35,7 +36,7 @@ export const TableRow = forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTM
 )
 TableRow.displayName = "TableRow"
 
-export const TableHead = forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<HTMLTableCellElement>>(
+export const TableHead = forwardRef<HTMLTableCellElement, ThHTMLAttributes<HTMLTableCellElement>>(
   ({ className, ...props }, ref) => (
     <th
       ref={ref}
@@ -46,10 +47,9 @@ export const TableHead = forwardRef<HTMLTableCellElement, React.ThHTMLAttributes
 )
 TableHead.displayName = "TableHead"
 
-export const TableCell = forwardRef<HTMLTableCellElement, React.TdHTMLAttributes<HTMLTableCellElement>>(
+export const TableCell = forwardRef<HTMLTableCellElement, TdHTMLAttributes<HTMLTableCellElement>>(
   ({ className, ...props }, ref) => (
     <td ref={ref} className={`p-2 align-middle [&:has([role=checkbox])]:pr-0 ${className}`} {...props} />
   ),
 )
 TableCell.displayName = "TableCell"
-
