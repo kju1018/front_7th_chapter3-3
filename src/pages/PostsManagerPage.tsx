@@ -4,26 +4,36 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { useAtom, useAtomValue } from "jotai"
 import { postsTotalAtom } from "../entities/posts/model/postsAtoms"
 import { Button, Card, CardContent, CardHeader, CardTitle, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Textarea } from "../shared/ui"
-import { PostsTable } from "../entities/posts/ui/PostsTable"
-import { postsWithAuthorAtom } from "../features/posts/model/postsViewAtoms"
+import { PostsTable } from "../widgets/posts/ui/PostsTable"
+import { postsWithAuthorAtom, PostWithAuthor } from "../features/posts/model/postsViewAtoms"
 import { usePostsList } from "../features/posts/model/usePostsList"
 import { newPostAtom } from "../features/posts/model/postFormAtoms"
 import { useTagsList } from "../entities/tags/model/useTagsList"
 import { tagsAtom } from "../entities/tags/model/tagsAtoms"
+import { highlightText } from "../shared/lib/highlightText"
+import {
+  addCommentApi,
+  deleteCommentApi,
+  fetchCommentsByPostApi,
+  updateCommentApi,
+} from "../entities/comments/api/commentsApi"
+import { likeCommentApi } from "../features/comments/api/commentsApi"
+import { commentsAtom } from "../features/comments/model/commentsAtoms"
+import { User } from "../entities/users/model/types"
 
 const PostsManager = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
 
-  // ?�태 관�?
+  // 상태 관리
   const posts = useAtomValue(postsWithAuthorAtom)
   const total = useAtomValue(postsTotalAtom)
   const tags = useAtomValue(tagsAtom)
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
-  const [selectedPost, setSelectedPost] = useState(null)
+  const [selectedPost, setSelectedPost] = useState<PostWithAuthor>(null)
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
   const [showAddDialog, setShowAddDialog] = useState(false)
@@ -31,7 +41,7 @@ const PostsManager = () => {
   const [newPost, setNewPost] = useAtom(newPostAtom)
   const [loading, setLoading] = useState(false)
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
-  const [comments, setComments] = useState({})
+  const [comments, setComments] = useAtom(commentsAtom)
   const [selectedComment, setSelectedComment] = useState(null)
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
@@ -115,6 +125,7 @@ const PostsManager = () => {
   // 게시물 업데이트
   const updatePost = async () => {
     try {
+      if(!selectedPost) return
       await updatePostFromHook(selectedPost)
       setShowEditDialog(false)
     } catch (error) {
@@ -134,8 +145,7 @@ const PostsManager = () => {
   const fetchComments = async (postId) => {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
-      const response = await fetch(`/api/comments/post/${postId}`)
-      const data = await response.json()
+      const data = await fetchCommentsByPostApi(postId)
       setComments((prev) => ({ ...prev, [postId]: data.comments }))
     } catch (error) {
       console.error("댓글 가져오기 오류:", error)
@@ -145,12 +155,8 @@ const PostsManager = () => {
   // 댓글 추가
   const addComment = async () => {
     try {
-      const response = await fetch("/api/comments/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newComment),
-      })
-      const data = await response.json()
+      if (!newComment.postId) return
+      const data = await addCommentApi({ body: newComment.body, postId: newComment.postId, userId: newComment.userId })
       setComments((prev) => ({
         ...prev,
         [data.postId]: [...(prev[data.postId] || []), data],
@@ -165,12 +171,7 @@ const PostsManager = () => {
   // 댓글 업데이트
   const updateComment = async () => {
     try {
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: selectedComment.body }),
-      })
-      const data = await response.json()
+      const data = await updateCommentApi(selectedComment.id, selectedComment.body)
       setComments((prev) => ({
         ...prev,
         [data.postId]: prev[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
@@ -184,9 +185,7 @@ const PostsManager = () => {
   // 댓글 삭제
   const deleteComment = async (id, postId) => {
     try {
-      await fetch(`/api/comments/${id}`, {
-        method: "DELETE",
-      })
+      await deleteCommentApi(id)
       setComments((prev) => ({
         ...prev,
         [postId]: prev[postId].filter((comment) => comment.id !== id),
@@ -200,12 +199,8 @@ const PostsManager = () => {
   const likeComment = async (id, postId) => {
     try {
 
-      const response = await fetch(`/api/comments/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ likes: comments[postId].find((c) => c.id === id).likes + 1 }),
-      })
-      const data = await response.json()
+      const currentLikes = comments[postId].find((c) => c.id === id).likes || 0
+      const data = await likeCommentApi(id, currentLikes + 1)
       setComments((prev) => ({
         ...prev,
         [postId]: prev[postId].map((comment) => (comment.id === data.id ? {...data, likes: comment.likes + 1} : comment)),
@@ -223,7 +218,7 @@ const PostsManager = () => {
   }
 
   // 사용자 모달 열기
-  const openUserModal = async (user) => {
+  const openUserModal = async (user: User) => {
     try {
       const response = await fetch(`/api/users/${user.id}`)
       const userData = await response.json()
@@ -258,19 +253,6 @@ const PostsManager = () => {
   }, [location.search])
 
   // 하이라이트 함수 추가
-  const highlightText = (text: string, highlight: string) => {
-    if (!text) return null
-    if (!highlight.trim()) {
-      return <span>{text}</span>
-    }
-    const regex = new RegExp(`(${highlight})`, "gi")
-    const parts = text.split(regex)
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    )
-  }
   // 댓글 렌더링
   const renderComments = (postId) => (
     <div className="mt-2">
@@ -407,7 +389,6 @@ const PostsManager = () => {
                 setShowEditDialog(true)
               }}
               onDeletePost={deletePost}
-              renderHighlightedText={highlightText}
             />
           )}
 
@@ -576,4 +557,3 @@ const PostsManager = () => {
 }
 
 export default PostsManager
-

@@ -1,17 +1,17 @@
-import type { Post } from "../../posts/model/types"
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "../../../shared/ui"
-import { PostItem } from "./PostItem"
+import { PostItem } from "../../../features/posts/ui/PostItem"
+import { PostWithAuthor } from "../../../features/posts/model/postsViewAtoms"
+import { User } from "../../../entities/users/model/types"
 
 interface PostsTableProps {
-  posts: Post[]
+  posts: PostWithAuthor[]
   searchQuery: string
   selectedTag: string
   onTagClick: (tag: string) => void
-  onOpenUser: (user: any) => void
-  onOpenPostDetail: (post: Post) => void
-  onEditPost: (post: Post) => void
+  onOpenUser: (user: User) => void
+  onOpenPostDetail: (post: PostWithAuthor) => void
+  onEditPost: (post: PostWithAuthor) => void
   onDeletePost: (id: number) => void
-  renderHighlightedText: (text: string, highlight: string) => JSX.Element | null
 }
 
 export const PostsTable = ({
@@ -23,7 +23,6 @@ export const PostsTable = ({
   onOpenPostDetail,
   onEditPost,
   onDeletePost,
-  renderHighlightedText,
 }: PostsTableProps) => (
   <Table>
     <TableHeader>
@@ -47,7 +46,6 @@ export const PostsTable = ({
           onOpenPostDetail={onOpenPostDetail}
           onEditPost={onEditPost}
           onDeletePost={onDeletePost}
-          renderHighlightedText={renderHighlightedText}
         />
       ))}
     </TableBody>
