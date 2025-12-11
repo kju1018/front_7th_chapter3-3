@@ -1,6 +1,6 @@
 import type { Post } from "../../posts/model/types"
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "../../../shared/ui"
-import { PostRow } from "./PostRow"
+import { PostItem } from "./PostItem"
 
 interface PostsTableProps {
   posts: Post[]
@@ -37,7 +37,7 @@ export const PostsTable = ({
     </TableHeader>
     <TableBody>
       {posts.map((post) => (
-        <PostRow
+        <PostItem
           key={post.id}
           post={post}
           searchQuery={searchQuery}

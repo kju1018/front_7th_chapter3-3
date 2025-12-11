@@ -1,8 +1,8 @@
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
-import type { Post } from "../../posts/model/types"
+import type { Post } from "../model/types"
 import { Button, TableCell, TableRow } from "../../../shared/ui"
 
-interface PostRowProps {
+interface PostItemProps {
   post: Post
   searchQuery: string
   selectedTag: string
@@ -14,7 +14,7 @@ interface PostRowProps {
   renderHighlightedText: (text: string, highlight: string) => JSX.Element | null
 }
 
-export const PostRow = ({
+export const PostItem = ({
   post,
   searchQuery,
   selectedTag,
@@ -24,7 +24,7 @@ export const PostRow = ({
   onEditPost,
   onDeletePost,
   renderHighlightedText,
-}: PostRowProps) => (
+}: PostItemProps) => (
   <TableRow>
     <TableCell>{post.id}</TableCell>
     <TableCell>

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { fetchPostsApi } from "../entities/posts/api/postsApi"
-import { fetchUsersApi } from "../entities/users/api/usersApi"
 import { useAtom } from "jotai"
-import { postsAtom, postsTotalAtom } from "../entities/posts/model/postsAtoms"
+import { postsTotalAtom } from "../entities/posts/model/postsAtoms"
 import { Button, Card, CardContent, CardHeader, CardTitle, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Textarea } from "../shared/ui"
 import { PostsTable } from "../entities/posts/ui/PostsTable"
+import { postsWithAuthorAtom } from "../features/posts/model/postsViewAtoms"
+import { usePostsList } from "../features/posts/model/usePostsList"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -14,7 +14,7 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search)
 
   // 상태 관리
-  const [posts, setPosts] = useAtom(postsAtom)
+  const [posts, setPosts] = useAtom(postsWithAuthorAtom)
   const [total, setTotal] = useAtom(postsTotalAtom)
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
@@ -36,6 +36,7 @@ const PostsManager = () => {
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
+  const { loadPosts: loadPostsFromHook } = usePostsList()
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -50,24 +51,13 @@ const PostsManager = () => {
   }
 
   // 게시물 가져오기
-  const loadPosts = () => {
+  const loadPosts = async () => {
     setLoading(true)
-
-    Promise.all([fetchPostsApi(limit, skip), fetchUsersApi()])
-      .then(([postsData, usersData]) => {
-        const postsWithUsers = postsData.posts.map((post) => ({
-          ...post,
-          author: usersData.users.find((user) => user.id === post.userId),
-        }))
-        setPosts(postsWithUsers)
-        setTotal(postsData.total)
-      })
-      .catch((error) => {
-        console.error("게시물 가져오기 오류:", error)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
+    try {
+      await loadPostsFromHook({ limit, skip })
+    } finally {
+      setLoading(false)
+    }
   }
 
   // 태그 가져오기
