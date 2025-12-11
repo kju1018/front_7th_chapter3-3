@@ -1,30 +1,18 @@
 ﻿import { useEffect, useState } from "react"
 import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtomValue } from "jotai"
 import { postsTotalAtom } from "../entities/posts/model/postsAtoms"
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../shared/ui"
+import { Button, Card, CardContent, CardHeader, CardTitle } from "../shared/ui"
 import { PostsTable } from "../widgets/posts/ui/PostsTable"
 import { postsWithAuthorAtom, PostWithAuthor } from "../features/posts/model/postsViewAtoms"
 import { usePostsList } from "../features/posts/model/usePostsList"
-import { newPostAtom } from "../features/posts/model/postFormAtoms"
 import { useTagsList } from "../entities/tags/model/useTagsList"
 import { tagsAtom } from "../entities/tags/model/tagsAtoms"
 import { useComments } from "../entities/comments/model/useComments"
 import { useCommentActions } from "../features/comments/model/useCommentActions"
 import { User, UserDetail } from "../entities/users/model/types"
-import { PostAddDialog } from "../features/posts/ui/PostAddDialog"
+import { PostAddDialog } from "../features/posts/add-post/ui/PostAddDialog"
 import { PostEditDialog } from "../features/posts/ui/PostEditDialog"
 import { CommentAddDialog } from "../features/comments/ui/CommentAddDialog"
 import { CommentEditDialog } from "../features/comments/ui/CommentEditDialog"
@@ -53,7 +41,6 @@ const PostsManager = () => {
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
-  const [newPost, setNewPost] = useAtom(newPostAtom)
   const [loading, setLoading] = useState(false)
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const { fetchComments } = useComments()
@@ -74,7 +61,6 @@ const PostsManager = () => {
     loadPosts: loadPostsFromHook,
     searchPosts: searchPostsFromHook,
     loadPostsByTag: loadPostsByTagFromHook,
-    addPost: addPostFromHook,
     updatePost: updatePostFromHook,
     deletePost: deletePostFromHook,
   } = usePostsList()
@@ -130,16 +116,6 @@ const PostsManager = () => {
       console.error("태그별 게시물 가져오기 실패:", error)
     } finally {
       setLoading(false)
-    }
-  }
-
-  // 게시물 추가
-  const addPost = async () => {
-    try {
-      await addPostFromHook(newPost)
-      setShowAddDialog(false)
-    } catch (error) {
-      console.error("게시물 추가 실패:", error)
     }
   }
 
@@ -313,9 +289,6 @@ const PostsManager = () => {
       <PostAddDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
-        newPost={newPost}
-        onChangeNewPost={setNewPost}
-        onSubmit={addPost}
       />
 
       {/* 게시물 수정 대화상자 */}

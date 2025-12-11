@@ -5,7 +5,6 @@ import { fetchPostsApi, fetchPostsByTagApi, addPostApi, updatePostApi, deletePos
 import { AddPostPayload, Post } from "../../../entities/posts/model/types"
 import { fetchUsersApi } from "../../../entities/users/api/usersApi"
 import { postsWithAuthorAtom } from "./postsViewAtoms"
-import { newPostAtom } from "./postFormAtoms"
 
 interface LoadPostsParams {
   limit: number
@@ -23,7 +22,6 @@ interface LoadPostsByTagParams {
 export const usePostsList = () => {
   const setPosts = useSetAtom(postsWithAuthorAtom)
   const setTotal = useSetAtom(postsTotalAtom)
-  const resetNewPost = useSetAtom(newPostAtom)
 
   const loadPosts = useCallback(
     async ({ limit, skip }: LoadPostsParams) => {
@@ -69,10 +67,9 @@ export const usePostsList = () => {
     async (payload: AddPostPayload) => {
       const created = await addPostApi(payload)
       setPosts((prev) => [created, ...prev])
-      resetNewPost({ title: "", body: "", userId: 1 })
       return created
     },
-    [setPosts, resetNewPost],
+    [setPosts],
   )
 
   const updatePost = useCallback(
