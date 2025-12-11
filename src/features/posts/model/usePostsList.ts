@@ -1,8 +1,8 @@
 import { useCallback } from "react"
 import { useSetAtom } from "jotai"
 import { postsTotalAtom } from "../../../entities/posts/model/postsAtoms"
-import { fetchPostsApi, fetchPostsByTagApi, addPostApi } from "../../../entities/posts/api/postsApi"
-import { AddPostPayload } from "../../../entities/posts/model/types"
+import { fetchPostsApi, fetchPostsByTagApi, addPostApi, updatePostApi, deletePostApi } from "../../../entities/posts/api/postsApi"
+import { AddPostPayload, Post } from "../../../entities/posts/model/types"
 import { fetchUsersApi } from "../../../entities/users/api/usersApi"
 import { postsWithAuthorAtom } from "./postsViewAtoms"
 import { newPostAtom } from "./postFormAtoms"
@@ -75,10 +75,29 @@ export const usePostsList = () => {
     [setPosts, resetNewPost],
   )
 
+  const updatePost = useCallback(
+    async (payload: Post) => {
+      const updated = await updatePostApi(payload)
+      setPosts((prev) => prev.map((post) => (post.id === updated.id ? updated : post)))
+      return updated
+    },
+    [setPosts],
+  )
+
+  const deletePost = useCallback(
+    async (id: number) => {
+      await deletePostApi(id)
+      setPosts((prev) => prev.filter((post) => post.id !== id))
+    },
+    [setPosts],
+  )
+
   return {
     loadPosts,
     searchPosts,
     loadPostsByTag,
     addPost,
+    updatePost,
+    deletePost,
   }
 }

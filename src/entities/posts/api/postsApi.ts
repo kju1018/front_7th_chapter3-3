@@ -21,3 +21,19 @@ export const addPostApi = async (payload: AddPostPayload): Promise<Post> => {
   const data = await response.json()
   return data
 }
+
+export const updatePostApi = async (payload: Post): Promise<Post> => {
+  const response = await fetch(`/api/posts/${payload.id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+  const data = await response.json()
+  return data
+}
+
+export const deletePostApi = async (id: number): Promise<void> => {
+  await fetch(`/api/posts/${id}`, {
+    method: "DELETE",
+  })
+}

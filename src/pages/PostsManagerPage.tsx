@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+﻿import { useEffect, useState } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAtom, useAtomValue } from "jotai"
@@ -16,8 +16,8 @@ const PostsManager = () => {
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
 
-  // 상태 관리
-  const [posts, setPosts] = useAtom(postsWithAuthorAtom)
+  // ?�태 관�?
+  const posts = useAtomValue(postsWithAuthorAtom)
   const total = useAtomValue(postsTotalAtom)
   const tags = useAtomValue(tagsAtom)
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
@@ -44,6 +44,8 @@ const PostsManager = () => {
     searchPosts: searchPostsFromHook,
     loadPostsByTag: loadPostsByTagFromHook,
     addPost: addPostFromHook,
+    updatePost: updatePostFromHook,
+    deletePost: deletePostFromHook,
   } = usePostsList()
   const { loadTags } = useTagsList()
 
@@ -113,13 +115,7 @@ const PostsManager = () => {
   // 게시물 업데이트
   const updatePost = async () => {
     try {
-      const response = await fetch(`/api/posts/${selectedPost.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedPost),
-      })
-      const data = await response.json()
-      setPosts(posts.map((post) => (post.id === data.id ? data : post)))
+      await updatePostFromHook(selectedPost)
       setShowEditDialog(false)
     } catch (error) {
       console.error("게시물 업데이트 오류:", error)
@@ -129,16 +125,12 @@ const PostsManager = () => {
   // 게시물 삭제
   const deletePost = async (id) => {
     try {
-      await fetch(`/api/posts/${id}`, {
-        method: "DELETE",
-      })
-      setPosts(posts.filter((post) => post.id !== id))
+      await deletePostFromHook(id)
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
     }
   }
 
-  // 댓글 가져오기
   const fetchComments = async (postId) => {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
@@ -584,3 +576,4 @@ const PostsManager = () => {
 }
 
 export default PostsManager
+
