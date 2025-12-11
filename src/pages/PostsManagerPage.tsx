@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useAtom } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 import { postsTotalAtom } from "../entities/posts/model/postsAtoms"
 import { Button, Card, CardContent, CardHeader, CardTitle, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Textarea } from "../shared/ui"
 import { PostsTable } from "../entities/posts/ui/PostsTable"
 import { postsWithAuthorAtom } from "../features/posts/model/postsViewAtoms"
 import { usePostsList } from "../features/posts/model/usePostsList"
+import { useTagsList } from "../entities/tags/model/useTagsList"
+import { tagsAtom } from "../entities/tags/model/tagsAtoms"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -16,6 +18,7 @@ const PostsManager = () => {
   // 상태 관리
   const [posts, setPosts] = useAtom(postsWithAuthorAtom)
   const [total, setTotal] = useAtom(postsTotalAtom)
+  const tags = useAtomValue(tagsAtom)
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
@@ -26,7 +29,6 @@ const PostsManager = () => {
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
   const [loading, setLoading] = useState(false)
-  const [tags, setTags] = useState([])
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const [comments, setComments] = useState({})
   const [selectedComment, setSelectedComment] = useState(null)
@@ -37,6 +39,7 @@ const PostsManager = () => {
   const [showUserModal, setShowUserModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
   const { loadPosts: loadPostsFromHook } = usePostsList()
+  const { loadTags } = useTagsList()
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -57,17 +60,6 @@ const PostsManager = () => {
       await loadPostsFromHook({ limit, skip })
     } finally {
       setLoading(false)
-    }
-  }
-
-  // 태그 가져오기
-  const fetchTags = async () => {
-    try {
-      const response = await fetch("/api/posts/tags")
-      const data = await response.json()
-      setTags(data)
-    } catch (error) {
-      console.error("태그 가져오기 오류:", error)
     }
   }
 
@@ -267,7 +259,7 @@ const PostsManager = () => {
   }
 
   useEffect(() => {
-    fetchTags()
+    loadTags()
   }, [])
 
   useEffect(() => {
