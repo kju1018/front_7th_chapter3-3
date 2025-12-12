@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, Textarea } from "../../../../shared/ui"
-import type { PostWithAuthor } from "../../model/postsViewAtoms"
+import type { PostWithAuthor } from "../../../../entities/posts/model/types"
 import { useEditPost } from "../model/useEditPost"
 
 interface PostEditDialogProps {

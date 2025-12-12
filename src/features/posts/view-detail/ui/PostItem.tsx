@@ -1,7 +1,7 @@
 import { Edit2, MessageSquare, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { Button, TableCell, TableRow } from "../../../../shared/ui"
-import { PostWithAuthor } from "../../model/postsViewAtoms"
-import { User } from "../../../../entities/users/model/types"
+import type { PostWithAuthor } from "../../../../entities/posts/model/types"
+import type { User } from "../../../../entities/users/model/types"
 import { highlightText } from "../../../../shared/lib/highlightText"
 
 interface PostItemProps {

@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../../shared/ui"
 import { highlightText } from "../../../../shared/lib/highlightText"
-import { CommentsList } from "../../../comments/ui/CommentsList"
-import type { PostWithAuthor } from "../../model/postsViewAtoms"
+import { CommentsList } from "../../../../widgets/comments/ui/CommentsList"
+import type { PostWithAuthor } from "../../../../entities/posts/model/types"
 import type { Comment } from "../../../../entities/comments/model/types"
 import { usePostDetail } from "../model/usePostDetail"
 

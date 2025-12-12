@@ -13,7 +13,15 @@ interface CommentsListProps {
   onDelete: (id: number, postId: number) => void
 }
 
-export const CommentsList = ({ postId, comments, searchQuery, onAddClick, onLike, onEdit, onDelete }: CommentsListProps) => {
+export const CommentsList = ({
+  postId,
+  comments,
+  searchQuery,
+  onAddClick,
+  onLike,
+  onEdit,
+  onDelete,
+}: CommentsListProps) => {
   if (!postId) return null
 
   const list = comments[postId] || []
@@ -58,3 +66,4 @@ export const CommentsList = ({ postId, comments, searchQuery, onAddClick, onLike
     </div>
   )
 }
+

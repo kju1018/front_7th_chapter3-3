@@ -4,9 +4,8 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { useAtomValue } from "jotai"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "../shared/ui"
 import { PostsTable } from "../widgets/posts/ui/PostsTable"
-import { PostWithAuthor } from "../features/posts/model/postsViewAtoms"
-import { usePostsList } from "../features/posts/model/usePostsList"
-import { usePostsListQuery } from "../features/posts/model/usePostsListQuery"
+import type { PostWithAuthor } from "../entities/posts/model/types"
+import { usePostsListQuery } from "../features/posts/view-list/model/usePostsListQuery"
 import { useTagsList } from "../entities/tags/model/useTagsList"
 import { tagsAtom } from "../entities/tags/model/tagsAtoms"
 import { User } from "../entities/users/model/types"
@@ -19,6 +18,7 @@ import { UserDialog } from "../features/users/view-detail/ui/UserDialog"
 import { PostsFilters } from "../widgets/posts/ui/PostsFilters"
 import { PostsPagination } from "../widgets/posts/ui/PostsPagination"
 import type { Comment } from "../entities/comments/model/types"
+import { useDeletePost } from "../features/posts/delete-post/model/useDeletePost"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -42,7 +42,7 @@ const PostsManager = () => {
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
-  const { deletePost: deletePostFromHook } = usePostsList()
+  const { deletePost: deletePostFromHook } = useDeletePost()
   useTagsList()
 
   const { posts, total, isLoading: postsLoading } = usePostsListQuery({

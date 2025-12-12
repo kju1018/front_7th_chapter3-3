@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
-import { fetchPostsApi, fetchPostsByTagApi, searchPostsApi } from "../../../entities/posts/api/postsApi"
-import { fetchUsersApi } from "../../../entities/users/api/usersApi"
-import type { PostWithAuthor } from "./postsViewAtoms"
+import { fetchPostsApi, fetchPostsByTagApi, searchPostsApi } from "../../../../entities/posts/api/postsApi"
+import { fetchUsersApi } from "../../../../entities/users/api/usersApi"
+import type { PostWithAuthor } from "../../../../entities/posts/model/types"
 
 interface UsePostsListQueryOptions {
   skip: number
@@ -27,8 +27,6 @@ export const usePostsListQuery = ({
   sortBy,
   sortOrder,
 }: UsePostsListQueryOptions): PostsListQueryResult => {
-  // sortBy, sortOrder는 현재 서버 정렬에는 사용하지 않지만
-  // 값이 바뀔 때마다 재조회가 되도록 쿼리 키에 포함시킨다.
   const query = useQuery({
     queryKey: ["posts", { skip, limit, searchQuery, selectedTag, sortBy, sortOrder }],
     queryFn: async () => {
@@ -72,3 +70,4 @@ export const usePostsListQuery = ({
     isError: query.isError,
   }
 }
+

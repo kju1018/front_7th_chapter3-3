@@ -1,3 +1,5 @@
+import type { User } from "../../users/model/types"
+
 export interface PostReactions {
   likes: number
   dislikes: number
@@ -21,4 +23,8 @@ export interface AddPostPayload {
   title: string
   body: string
   userId: number
+}
+
+export interface PostWithAuthor extends Post {
+  author?: User
 }

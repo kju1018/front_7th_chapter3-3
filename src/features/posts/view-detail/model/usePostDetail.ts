@@ -2,7 +2,8 @@ import { useEffect } from "react"
 import { useAtomValue } from "jotai"
 import { commentsAtom } from "../../../../entities/comments/model/commentsAtoms"
 import { useComments } from "../../../../entities/comments/model/useComments"
-import { useCommentActions } from "../../../comments/model/useCommentActions"
+import { useLikeComment } from "../../../comments/like-comment/model/useLikeComment"
+import { useDeleteComment } from "../../../comments/delete-comment/model/useDeleteComment"
 
 interface UsePostDetailOptions {
   postId: number | null
@@ -11,7 +12,8 @@ interface UsePostDetailOptions {
 export const usePostDetail = ({ postId }: UsePostDetailOptions) => {
   const comments = useAtomValue(commentsAtom)
   const { fetchComments } = useComments()
-  const { likeComment, deleteComment } = useCommentActions()
+  const { likeComment } = useLikeComment()
+  const { deleteComment } = useDeleteComment()
 
   useEffect(() => {
     if (postId) {

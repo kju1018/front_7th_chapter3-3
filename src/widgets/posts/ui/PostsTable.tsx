@@ -1,7 +1,7 @@
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "../../../shared/ui"
 import { PostItem } from "../../../features/posts/view-detail/ui/PostItem"
-import { PostWithAuthor } from "../../../features/posts/model/postsViewAtoms"
-import { User } from "../../../entities/users/model/types"
+import type { PostWithAuthor } from "../../../entities/posts/model/types"
+import type { User } from "../../../entities/users/model/types"
 
 interface PostsTableProps {
   posts: PostWithAuthor[]

@@ -1,14 +1,14 @@
 import { useEffect, useState, useCallback } from "react"
-import type { Post } from "../../../../entities/posts/model/types"
-import type { PostWithAuthor } from "../../model/postsViewAtoms"
-import { usePostsList } from "../../model/usePostsList"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import type { Post, PostWithAuthor } from "../../../../entities/posts/model/types"
+import { updatePostApi } from "../../../../entities/posts/api/postsApi"
 
 interface UseEditPostOptions {
   post: PostWithAuthor | null
 }
 
 export const useEditPost = ({ post }: UseEditPostOptions) => {
-  const { updatePost } = usePostsList()
+  const queryClient = useQueryClient()
 
   const [form, setForm] = useState<Pick<Post, "title" | "body">>({
     title: post?.title ?? "",
@@ -24,11 +24,28 @@ export const useEditPost = ({ post }: UseEditPostOptions) => {
 
   const [submitting, setSubmitting] = useState(false)
 
+  const updatePostMutation = useMutation({
+    mutationKey: ["posts", "update"],
+    mutationFn: async (payload: Post) => updatePostApi(payload),
+    onSuccess: (updated) => {
+      queryClient.setQueriesData(
+        { queryKey: ["posts"] },
+        (oldData: { posts: PostWithAuthor[]; total: number } | undefined) => {
+          if (!oldData) return oldData
+          const posts = (oldData.posts ?? []).map((p) =>
+            p.id === updated.id ? { ...p, ...updated } : p,
+          )
+          return { ...oldData, posts }
+        },
+      )
+    },
+  })
+
   const submit = useCallback(async () => {
     if (!post) return
     setSubmitting(true)
     try {
-      await updatePost({
+      await updatePostMutation.mutateAsync({
         id: post.id,
         userId: post.userId,
         title: form.title,
@@ -39,7 +56,7 @@ export const useEditPost = ({ post }: UseEditPostOptions) => {
     } finally {
       setSubmitting(false)
     }
-  }, [form.body, form.title, post, updatePost])
+  }, [form.body, form.title, post, updatePostMutation])
 
   return {
     form,
@@ -48,4 +65,3 @@ export const useEditPost = ({ post }: UseEditPostOptions) => {
     submit,
   }
 }
-
