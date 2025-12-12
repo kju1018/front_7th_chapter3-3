@@ -1,15 +1,28 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../../shared/ui"
-import type { UserDetail } from "../../../entities/users/model/types"
+import { useUserDetail } from "../model/useUserDetail"
 
 interface UserDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  user: UserDetail | null
+  userId: number | null
 }
 
-export const UserDialog = ({ open, onOpenChange, user }: UserDialogProps) => (
-  <Dialog open={open} onOpenChange={onOpenChange}>
-    {user && (
+export const UserDialog = ({ open, onOpenChange, userId }: UserDialogProps) => {
+  const { user, loading } = useUserDetail({ userId })
+
+  let content = null
+
+  if (loading) {
+    content = (
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>사용자 정보</DialogTitle>
+        </DialogHeader>
+        <div className="p-4">로딩 중...</div>
+      </DialogContent>
+    )
+  } else if (user) {
+    content = (
       <DialogContent>
         <DialogHeader>
           <DialogTitle>사용자 정보</DialogTitle>
@@ -39,7 +52,9 @@ export const UserDialog = ({ open, onOpenChange, user }: UserDialogProps) => (
           </div>
         </div>
       </DialogContent>
-    )}
-  </Dialog>
-)
+    )
+  }
+
+  return <Dialog open={open} onOpenChange={onOpenChange}>{content}</Dialog>
+}
 

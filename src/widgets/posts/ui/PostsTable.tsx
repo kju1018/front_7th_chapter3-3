@@ -1,5 +1,5 @@
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "../../../shared/ui"
-import { PostItem } from "../../../features/posts/ui/PostItem"
+import { PostItem } from "../../../features/posts/view-detail/ui/PostItem"
 import { PostWithAuthor } from "../../../features/posts/model/postsViewAtoms"
 import { User } from "../../../entities/users/model/types"
 

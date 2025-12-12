@@ -1,5 +1,5 @@
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea } from "../../../shared/ui"
-import { useAddComment } from "../add-comment/model/useAddComment"
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea } from "../../../../shared/ui"
+import { useAddComment } from "../model/useAddComment"
 
 interface CommentAddDialogProps {
   open: boolean

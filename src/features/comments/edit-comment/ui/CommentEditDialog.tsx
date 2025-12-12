@@ -1,6 +1,6 @@
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea } from "../../../shared/ui"
-import type { Comment } from "../../../entities/comments/api/commentsApi"
-import { useEditComment } from "../edit-comment/model/useEditComment"
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea } from "../../../../shared/ui"
+import type { Comment } from "../../../../entities/comments/api/commentsApi"
+import { useEditComment } from "../model/useEditComment"
 
 interface CommentEditDialogProps {
   open: boolean

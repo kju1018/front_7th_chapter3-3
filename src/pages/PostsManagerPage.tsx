@@ -9,19 +9,15 @@ import { postsWithAuthorAtom, PostWithAuthor } from "../features/posts/model/pos
 import { usePostsList } from "../features/posts/model/usePostsList"
 import { useTagsList } from "../entities/tags/model/useTagsList"
 import { tagsAtom } from "../entities/tags/model/tagsAtoms"
-import { useComments } from "../entities/comments/model/useComments"
-import { useCommentActions } from "../features/comments/model/useCommentActions"
-import { User, UserDetail } from "../entities/users/model/types"
+import { User } from "../entities/users/model/types"
 import { PostAddDialog } from "../features/posts/add-post/ui/PostAddDialog"
-import { PostEditDialog } from "../features/posts/ui/PostEditDialog"
-import { CommentAddDialog } from "../features/comments/ui/CommentAddDialog"
-import { CommentEditDialog } from "../features/comments/ui/CommentEditDialog"
-import { PostDetailDialog } from "../features/posts/ui/PostDetailDialog"
+import { PostEditDialog } from "../features/posts/edit-post/ui/PostEditDialog"
+import { CommentAddDialog } from "../features/comments/add-comment/ui/CommentAddDialog"
+import { CommentEditDialog } from "../features/comments/edit-comment/ui/CommentEditDialog"
+import { PostDetailDialog } from "../features/posts/view-detail/ui/PostDetailDialog"
 import { UserDialog } from "../features/users/view-detail/ui/UserDialog"
 import { PostsFilters } from "../widgets/posts/ui/PostsFilters"
 import { PostsPagination } from "../widgets/posts/ui/PostsPagination"
-import { commentsAtom } from "../entities/comments/model/commentsAtoms"
-import { fetchUserByIdApi } from "../entities/users/api/usersApi"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -32,7 +28,6 @@ const PostsManager = () => {
   const posts = useAtomValue(postsWithAuthorAtom)
   const total = useAtomValue(postsTotalAtom)
   const tags = useAtomValue(tagsAtom)
-  const comments = useAtomValue(commentsAtom)
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
@@ -43,22 +38,19 @@ const PostsManager = () => {
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
-  const { fetchComments } = useComments()
-  const { deleteComment: deleteCommentAction, likeComment: likeCommentAction } = useCommentActions()
   const [selectedComment, setSelectedComment] = useState(null)
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<UserDetail | null>(null)
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
   const {
     loadPosts: loadPostsFromHook,
     searchPosts: searchPostsFromHook,
     loadPostsByTag: loadPostsByTagFromHook,
-    updatePost: updatePostFromHook,
     deletePost: deletePostFromHook,
   } = usePostsList()
-  const { loadTags } = useTagsList()
+  useTagsList()
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -113,17 +105,6 @@ const PostsManager = () => {
     }
   }
 
-  // 게시물 업데이트
-  const updatePost = async () => {
-    try {
-      if (!selectedPost) return
-      await updatePostFromHook(selectedPost)
-      setShowEditDialog(false)
-    } catch (error) {
-      console.error("게시물 업데이트 오류:", error)
-    }
-  }
-
   // 게시물 삭제
   const deletePost = async (id) => {
     try {
@@ -133,45 +114,17 @@ const PostsManager = () => {
     }
   }
 
-  // 댓글 삭제
-  const deleteComment = async (id, postId) => {
-    try {
-      await deleteCommentAction(id, postId)
-    } catch (error) {
-      console.error("댓글 삭제 오류:", error)
-    }
-  }
-
-  // 댓글 좋아요
-  const likeComment = async (id, postId) => {
-    try {
-      await likeCommentAction(id, postId)
-    } catch (error) {
-      console.error("댓글 좋아요 오류:", error)
-    }
-  }
-
   // 게시물 상세 보기
   const openPostDetail = (post) => {
     setSelectedPost(post)
-    fetchComments(post.id)
     setShowPostDetailDialog(true)
   }
 
   // 사용자 모달 열기
-  const openUserModal = async (user: User) => {
-    try {
-      const userData = await fetchUserByIdApi(user.id)
-      setSelectedUser(userData)
-      setShowUserModal(true)
-    } catch (error) {
-      console.error("사용자 정보 가져오기 오류:", error)
-    }
+  const openUserModal = (user: User) => {
+    setSelectedUserId(user.id)
+    setShowUserModal(true)
   }
-
-  useEffect(() => {
-    loadTags()
-  }, [])
 
   useEffect(() => {
     if (selectedTag) {
@@ -261,13 +214,7 @@ const PostsManager = () => {
       <PostAddDialog open={showAddDialog} onOpenChange={setShowAddDialog} />
 
       {/* 게시물 수정 대화상자 */}
-      <PostEditDialog
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-        post={selectedPost}
-        onChangePost={setSelectedPost}
-        onSubmit={updatePost}
-      />
+      <PostEditDialog open={showEditDialog} onOpenChange={setShowEditDialog} post={selectedPost} />
 
       {/* 댓글 추가 대화상자 */}
       {selectedPost && (
@@ -287,20 +234,17 @@ const PostsManager = () => {
         onOpenChange={setShowPostDetailDialog}
         post={selectedPost}
         searchQuery={searchQuery}
-        comments={comments}
         onAddComment={() => {
           setShowAddCommentDialog(true)
         }}
-        onLikeComment={likeComment}
         onEditComment={(comment) => {
           setSelectedComment(comment)
           setShowEditCommentDialog(true)
         }}
-        onDeleteComment={deleteComment}
       />
 
       {/* 사용자 모달 */}
-      <UserDialog open={showUserModal} onOpenChange={setShowUserModal} user={selectedUser} />
+      <UserDialog open={showUserModal} onOpenChange={setShowUserModal} userId={selectedUserId} />
     </Card>
   )
 }

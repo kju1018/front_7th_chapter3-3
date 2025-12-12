@@ -7,7 +7,7 @@ interface CommentsListProps {
   postId?: number
   comments: Record<number, Comment[]>
   searchQuery: string
-  onAddClick: (postId: number) => void
+  onAddClick: () => void
   onLike: (id: number, postId: number) => void
   onEdit: (comment: Comment) => void
   onDelete: (id: number, postId: number) => void
@@ -22,7 +22,7 @@ export const CommentsList = ({ postId, comments, searchQuery, onAddClick, onLike
     <div className="mt-2">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-semibold">댓글</h3>
-        <Button size="sm" onClick={() => onAddClick(postId)}>
+        <Button size="sm" onClick={() => onAddClick()}>
           <Plus className="w-3 h-3 mr-1" />
           댓글 추가
         </Button>

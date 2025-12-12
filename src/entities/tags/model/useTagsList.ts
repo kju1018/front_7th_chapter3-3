@@ -1,4 +1,4 @@
-import { useCallback } from "react"
+import { useCallback, useEffect } from "react"
 import { useSetAtom } from "jotai"
 import { tagsAtom } from "./tagsAtoms"
 import { fetchTagsApi } from "../api/tagsApi"
@@ -15,8 +15,11 @@ export const useTagsList = () => {
     }
   }, [setTags])
 
+  useEffect(() => {
+    loadTags()
+  }, [loadTags])
+
   return {
     loadTags,
   }
 }
-
