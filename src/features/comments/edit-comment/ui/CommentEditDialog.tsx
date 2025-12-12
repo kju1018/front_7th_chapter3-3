@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Textarea } from "../../../../shared/ui"
-import type { Comment } from "../../../../entities/comments/api/commentsApi"
+import type { Comment } from "../../../../entities/comments/model/types"
 import { useEditComment } from "../model/useEditComment"
 
 interface CommentEditDialogProps {

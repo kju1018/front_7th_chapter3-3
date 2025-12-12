@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../../sh
 import { highlightText } from "../../../../shared/lib/highlightText"
 import { CommentsList } from "../../../comments/ui/CommentsList"
 import type { PostWithAuthor } from "../../model/postsViewAtoms"
-import type { Comment } from "../../../../entities/comments/api/commentsApi"
+import type { Comment } from "../../../../entities/comments/model/types"
 import { usePostDetail } from "../model/usePostDetail"
 
 interface PostDetailDialogProps {
@@ -28,10 +28,10 @@ export const PostDetailDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{highlightText(post?.title, searchQuery)}</DialogTitle>
+          <DialogTitle>{highlightText(post?.title ?? "", searchQuery)}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <p>{highlightText(post?.body, searchQuery)}</p>
+          <p>{highlightText(post?.body ?? "", searchQuery)}</p>
           <CommentsList
             postId={post?.id}
             comments={comments}

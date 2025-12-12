@@ -1,7 +1,7 @@
 import { Plus, ThumbsUp, Edit2, Trash2 } from "lucide-react"
 import { Button } from "../../../shared/ui"
 import { highlightText } from "../../../shared/lib/highlightText"
-import type { Comment } from "../../../entities/comments/api/commentsApi"
+import type { Comment } from "../../../entities/comments/model/types"
 
 interface CommentsListProps {
   postId?: number
@@ -58,4 +58,3 @@ export const CommentsList = ({ postId, comments, searchQuery, onAddClick, onLike
     </div>
   )
 }
-

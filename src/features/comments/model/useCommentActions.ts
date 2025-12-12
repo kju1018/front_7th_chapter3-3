@@ -4,7 +4,7 @@ import { useAtom } from "jotai"
 import { commentsAtom } from "../../../entities/comments/model/commentsAtoms"
 import { addCommentApi, deleteCommentApi, updateCommentApi } from "../../../entities/comments/api/commentsApi"
 import { likeCommentApi } from "../api/commentsApi"
-import type { AddCommentPayload, Comment } from "../../../entities/comments/api/commentsApi"
+import type { AddCommentPayload, Comment } from "../../../entities/comments/model/types"
 
 export const useCommentActions = () => {
   const [comments, setComments] = useAtom(commentsAtom)

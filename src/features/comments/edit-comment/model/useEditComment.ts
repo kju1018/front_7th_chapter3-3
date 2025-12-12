@@ -1,5 +1,5 @@
 import { useState } from "react"
-import type { Comment } from "../../../../entities/comments/api/commentsApi"
+import type { Comment } from "../../../../entities/comments/model/types"
 import { useCommentActions } from "../../model/useCommentActions"
 
 interface UseEditCommentOptions {

@@ -18,6 +18,7 @@ import { PostDetailDialog } from "../features/posts/view-detail/ui/PostDetailDia
 import { UserDialog } from "../features/users/view-detail/ui/UserDialog"
 import { PostsFilters } from "../widgets/posts/ui/PostsFilters"
 import { PostsPagination } from "../widgets/posts/ui/PostsPagination"
+import type { Comment } from "../entities/comments/model/types"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -35,7 +36,7 @@ const PostsManager = () => {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
-  const [selectedComment, setSelectedComment] = useState(null)
+  const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
@@ -66,7 +67,7 @@ const PostsManager = () => {
   }
 
   // 게시물 삭제
-  const deletePost = async (id) => {
+  const deletePost = async (id: number) => {
     try {
       await deletePostFromHook(id)
     } catch (error) {
@@ -75,7 +76,7 @@ const PostsManager = () => {
   }
 
   // 게시물 상세 보기
-  const openPostDetail = (post) => {
+  const openPostDetail = (post: PostWithAuthor) => {
     setSelectedPost(post)
     setShowPostDetailDialog(true)
   }
@@ -185,19 +186,21 @@ const PostsManager = () => {
       )}
 
       {/* 게시물 상세 보기 대화상자 */}
-      <PostDetailDialog
-        open={showPostDetailDialog}
-        onOpenChange={setShowPostDetailDialog}
-        post={selectedPost}
-        searchQuery={searchQuery}
-        onAddComment={() => {
-          setShowAddCommentDialog(true)
-        }}
-        onEditComment={(comment) => {
-          setSelectedComment(comment)
-          setShowEditCommentDialog(true)
-        }}
-      />
+      {selectedPost && (
+        <PostDetailDialog
+          open={showPostDetailDialog}
+          onOpenChange={setShowPostDetailDialog}
+          post={selectedPost}
+          searchQuery={searchQuery}
+          onAddComment={() => {
+            setShowAddCommentDialog(true)
+          }}
+          onEditComment={(comment) => {
+            setSelectedComment(comment)
+            setShowEditCommentDialog(true)
+          }}
+        />
+      )}
 
       {/* 사용자 모달 */}
       <UserDialog open={showUserModal} onOpenChange={setShowUserModal} userId={selectedUserId} />
