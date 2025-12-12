@@ -26,7 +26,7 @@ export const PostDetailDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{highlightText(post?.title, searchQuery)}</DialogTitle>
         </DialogHeader>

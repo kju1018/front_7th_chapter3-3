@@ -8,7 +8,6 @@ export const useComments = () => {
   const [comments, setComments] = useAtom(commentsAtom)
 
   const fetchCommentsMutation = useMutation({
-    mutationKey: ["comments", "byPost"],
     mutationFn: async (postId: number) => {
       const data = await fetchCommentsByPostApi(postId)
       setComments((prev) => ({ ...prev, [postId]: data.comments }))
@@ -19,7 +18,9 @@ export const useComments = () => {
   const fetchComments = useCallback(
     async (postId: number) => {
       if (comments[postId]) return comments[postId]
-      return fetchCommentsMutation.mutateAsync(postId)
+      return fetchCommentsMutation.mutateAsync(postId, {
+        mutationKey: ["comments", "byPost", postId],
+      })
     },
     [comments, fetchCommentsMutation],
   )

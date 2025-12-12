@@ -24,6 +24,8 @@ export const usePostsListQuery = ({
   limit,
   searchQuery,
   selectedTag,
+  sortBy,
+  sortOrder,
 }: UsePostsListQueryOptions): PostsListQueryResult => {
   // sortBy, sortOrder는 현재 서버 정렬에는 사용하지 않지만
   // 값이 바뀔 때마다 재조회가 되도록 쿼리 키에 포함시킨다.
