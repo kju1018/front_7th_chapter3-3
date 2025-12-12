@@ -2,24 +2,12 @@ import { useCallback } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { commentsAtom } from "../../../entities/comments/model/commentsAtoms"
-import { addCommentApi, deleteCommentApi, updateCommentApi } from "../../../entities/comments/api/commentsApi"
+import { deleteCommentApi, updateCommentApi } from "../../../entities/comments/api/commentsApi"
 import { likeCommentApi } from "../api/commentsApi"
-import type { AddCommentPayload, Comment } from "../../../entities/comments/model/types"
+import type { Comment } from "../../../entities/comments/model/types"
 
 export const useCommentActions = () => {
   const [comments, setComments] = useAtom(commentsAtom)
-
-  const addCommentMutation = useMutation({
-    mutationKey: ["comments", "add"],
-    mutationFn: async (payload: AddCommentPayload) => {
-      const data = await addCommentApi(payload)
-      setComments((prev) => ({
-        ...prev,
-        [data.postId]: [...(prev[data.postId] || []), data],
-      }))
-      return data
-    },
-  })
 
   const updateCommentMutation = useMutation({
     mutationKey: ["comments", "update"],
@@ -60,11 +48,6 @@ export const useCommentActions = () => {
     },
   })
 
-  const addComment = useCallback(
-    (payload: AddCommentPayload) => addCommentMutation.mutateAsync(payload),
-    [addCommentMutation],
-  )
-
   const updateComment = useCallback(
     (id: number, body: string) => updateCommentMutation.mutateAsync({ id, body }),
     [updateCommentMutation],
@@ -81,7 +64,6 @@ export const useCommentActions = () => {
   )
 
   return {
-    addComment,
     updateComment,
     deleteComment,
     likeComment,
