@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import type { Comment } from "../../../../entities/comments/api/commentsApi"
 import { useCommentActions } from "../../model/useCommentActions"
 
@@ -9,10 +9,6 @@ interface UseEditCommentOptions {
 export const useEditComment = ({ comment }: UseEditCommentOptions) => {
   const { updateComment } = useCommentActions()
   const [body, setBody] = useState(comment?.body ?? "")
-
-  useEffect(() => {
-    setBody(comment?.body ?? "")
-  }, [comment])
 
   const submit = async () => {
     if (!comment) return

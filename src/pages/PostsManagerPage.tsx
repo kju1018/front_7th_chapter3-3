@@ -176,11 +176,13 @@ const PostsManager = () => {
       )}
 
       {/* 댓글 수정 대화상자 */}
-      <CommentEditDialog
-        open={showEditCommentDialog}
-        onOpenChange={setShowEditCommentDialog}
-        comment={selectedComment}
-      />
+      {selectedComment && (
+        <CommentEditDialog
+          open={showEditCommentDialog}
+          onOpenChange={setShowEditCommentDialog}
+          comment={selectedComment}
+        />
+      )}
 
       {/* 게시물 상세 보기 대화상자 */}
       <PostDetailDialog
