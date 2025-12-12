@@ -36,7 +36,7 @@ const PostsManager = () => {
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
-  const [selectedPost, setSelectedPost] = useState<PostWithAuthor>(null)
+  const [selectedPost, setSelectedPost] = useState<PostWithAuthor | null>(null)
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
   const [showAddDialog, setShowAddDialog] = useState(false)
@@ -286,10 +286,7 @@ const PostsManager = () => {
       </CardContent>
 
       {/* 게시물 추가 대화상자 */}
-      <PostAddDialog
-        open={showAddDialog}
-        onOpenChange={setShowAddDialog}
-      />
+      <PostAddDialog open={showAddDialog} onOpenChange={setShowAddDialog} />
 
       {/* 게시물 수정 대화상자 */}
       <PostEditDialog
@@ -301,13 +298,9 @@ const PostsManager = () => {
       />
 
       {/* 댓글 추가 대화상자 */}
-      <CommentAddDialog
-        open={showAddCommentDialog}
-        onOpenChange={setShowAddCommentDialog}
-        newComment={newComment}
-        onChangeNewComment={setNewComment}
-        onSubmit={addComment}
-      />
+      {selectedPost && (
+        <CommentAddDialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog} postId={selectedPost.id} />
+      )}
 
       {/* 댓글 수정 대화상자 */}
       <CommentEditDialog
@@ -325,8 +318,7 @@ const PostsManager = () => {
         post={selectedPost}
         searchQuery={searchQuery}
         comments={comments}
-        onAddComment={(id) => {
-          setNewComment((prev) => ({ ...prev, postId: id }))
+        onAddComment={() => {
           setShowAddCommentDialog(true)
         }}
         onLikeComment={likeComment}
