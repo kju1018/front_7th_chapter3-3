@@ -2,11 +2,11 @@
 import { Plus } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAtomValue } from "jotai"
-import { postsTotalAtom } from "../entities/posts/model/postsAtoms"
 import { Button, Card, CardContent, CardHeader, CardTitle } from "../shared/ui"
 import { PostsTable } from "../widgets/posts/ui/PostsTable"
-import { postsWithAuthorAtom, PostWithAuthor } from "../features/posts/model/postsViewAtoms"
+import { PostWithAuthor } from "../features/posts/model/postsViewAtoms"
 import { usePostsList } from "../features/posts/model/usePostsList"
+import { usePostsListQuery } from "../features/posts/model/usePostsListQuery"
 import { useTagsList } from "../entities/tags/model/useTagsList"
 import { tagsAtom } from "../entities/tags/model/tagsAtoms"
 import { User } from "../entities/users/model/types"
@@ -25,8 +25,6 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search)
 
   // 상태 관리
-  const posts = useAtomValue(postsWithAuthorAtom)
-  const total = useAtomValue(postsTotalAtom)
   const tags = useAtomValue(tagsAtom)
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
@@ -36,7 +34,6 @@ const PostsManager = () => {
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
-  const [loading, setLoading] = useState(false)
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const [selectedComment, setSelectedComment] = useState(null)
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
@@ -44,13 +41,17 @@ const PostsManager = () => {
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
   const [showUserModal, setShowUserModal] = useState(false)
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
-  const {
-    loadPosts: loadPostsFromHook,
-    searchPosts: searchPostsFromHook,
-    loadPostsByTag: loadPostsByTagFromHook,
-    deletePost: deletePostFromHook,
-  } = usePostsList()
+  const { deletePost: deletePostFromHook } = usePostsList()
   useTagsList()
+
+  const { posts, total, isLoading: postsLoading } = usePostsListQuery({
+    skip,
+    limit,
+    searchQuery,
+    selectedTag,
+    sortBy,
+    sortOrder,
+  })
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -62,47 +63,6 @@ const PostsManager = () => {
     if (sortOrder) params.set("sortOrder", sortOrder)
     if (selectedTag) params.set("tag", selectedTag)
     navigate(`?${params.toString()}`)
-  }
-
-  // 게시물 가져오기
-  const loadPosts = async () => {
-    setLoading(true)
-    try {
-      await loadPostsFromHook({ limit, skip })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // 게시물 검색
-  const searchPosts = async () => {
-    if (!searchQuery) {
-      loadPosts()
-      return
-    }
-    setLoading(true)
-    try {
-      await searchPostsFromHook({ query: searchQuery })
-    } catch (error) {
-      console.error("게시물 검색 실패:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-  // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (tag: string) => {
-    if (!tag || tag === "all") {
-      loadPosts()
-      return
-    }
-    setLoading(true)
-    try {
-      await loadPostsByTagFromHook({ tag })
-    } catch (error) {
-      console.error("태그별 게시물 가져오기 실패:", error)
-    } finally {
-      setLoading(false)
-    }
   }
 
   // 게시물 삭제
@@ -127,13 +87,8 @@ const PostsManager = () => {
   }
 
   useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag)
-    } else {
-      loadPosts()
-    }
     updateURL()
-  }, [skip, limit, sortBy, sortOrder, selectedTag])
+  }, [skip, limit, sortBy, sortOrder, selectedTag, searchQuery])
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -162,11 +117,10 @@ const PostsManager = () => {
           <PostsFilters
             searchQuery={searchQuery}
             onSearchQueryChange={setSearchQuery}
-            onSearch={searchPosts}
+            onSearch={updateURL}
             selectedTag={selectedTag}
             onTagChange={(value) => {
               setSelectedTag(value)
-              fetchPostsByTag(value)
               updateURL()
             }}
             tags={tags}
@@ -177,7 +131,7 @@ const PostsManager = () => {
           />
 
           {/* 게시물 테이블 */}
-          {loading ? (
+          {postsLoading ? (
             <div className="flex justify-center p-4">로딩 중...</div>
           ) : (
             <PostsTable
