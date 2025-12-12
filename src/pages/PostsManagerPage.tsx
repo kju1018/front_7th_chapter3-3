@@ -44,14 +44,8 @@ const PostsManager = () => {
   const [loading, setLoading] = useState(false)
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
   const { fetchComments } = useComments()
-  const {
-    addComment: addCommentAction,
-    updateComment: updateCommentAction,
-    deleteComment: deleteCommentAction,
-    likeComment: likeCommentAction,
-  } = useCommentActions()
+  const { deleteComment: deleteCommentAction, likeComment: likeCommentAction } = useCommentActions()
   const [selectedComment, setSelectedComment] = useState(null)
-  const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
@@ -136,28 +130,6 @@ const PostsManager = () => {
       await deletePostFromHook(id)
     } catch (error) {
       console.error("게시물 삭제 오류:", error)
-    }
-  }
-
-  // 댓글 추가
-  const addComment = async () => {
-    try {
-      if (!newComment.postId) return
-      await addCommentAction({ body: newComment.body, postId: newComment.postId, userId: newComment.userId })
-      setShowAddCommentDialog(false)
-      setNewComment({ body: "", postId: null, userId: 1 })
-    } catch (error) {
-      console.error("댓글 추가 오류:", error)
-    }
-  }
-
-  // 댓글 업데이트
-  const updateComment = async () => {
-    try {
-      await updateCommentAction(selectedComment.id, selectedComment.body)
-      setShowEditCommentDialog(false)
-    } catch (error) {
-      console.error("댓글 업데이트 오류:", error)
     }
   }
 
@@ -307,8 +279,6 @@ const PostsManager = () => {
         open={showEditCommentDialog}
         onOpenChange={setShowEditCommentDialog}
         comment={selectedComment}
-        onChangeComment={setSelectedComment}
-        onSubmit={updateComment}
       />
 
       {/* 게시물 상세 보기 대화상자 */}
