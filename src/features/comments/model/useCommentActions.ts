@@ -1,4 +1,5 @@
 import { useCallback } from "react"
+import { useMutation } from "@tanstack/react-query"
 import { useAtom } from "jotai"
 import { commentsAtom } from "../../../entities/comments/model/commentsAtoms"
 import { addCommentApi, deleteCommentApi, updateCommentApi } from "../../../entities/comments/api/commentsApi"
@@ -8,8 +9,9 @@ import type { AddCommentPayload, Comment } from "../../../entities/comments/api/
 export const useCommentActions = () => {
   const [comments, setComments] = useAtom(commentsAtom)
 
-  const addComment = useCallback(
-    async (payload: AddCommentPayload) => {
+  const addCommentMutation = useMutation({
+    mutationKey: ["comments", "add"],
+    mutationFn: async (payload: AddCommentPayload) => {
       const data = await addCommentApi(payload)
       setComments((prev) => ({
         ...prev,
@@ -17,11 +19,11 @@ export const useCommentActions = () => {
       }))
       return data
     },
-    [setComments],
-  )
+  })
 
-  const updateComment = useCallback(
-    async (id: number, body: string) => {
+  const updateCommentMutation = useMutation({
+    mutationKey: ["comments", "update"],
+    mutationFn: async ({ id, body }: { id: number; body: string }) => {
       const data = await updateCommentApi(id, body)
       setComments((prev) => ({
         ...prev,
@@ -29,31 +31,53 @@ export const useCommentActions = () => {
       }))
       return data
     },
-    [setComments],
-  )
+  })
 
-  const deleteComment = useCallback(
-    async (id: number, postId: number) => {
+  const deleteCommentMutation = useMutation({
+    mutationKey: ["comments", "delete"],
+    mutationFn: async ({ id, postId }: { id: number; postId: number }) => {
       await deleteCommentApi(id)
       setComments((prev) => ({
         ...prev,
         [postId]: prev[postId]?.filter((comment) => comment.id !== id) || [],
       }))
     },
-    [setComments],
-  )
+  })
 
-  const likeComment = useCallback(
-    async (id: number, postId: number) => {
+  const likeCommentMutation = useMutation({
+    mutationKey: ["comments", "like"],
+    mutationFn: async ({ id, postId }: { id: number; postId: number }) => {
       const currentLikes = comments[postId]?.find((c) => c.id === id)?.likes || 0
       const data = await likeCommentApi(id, currentLikes + 1)
       setComments((prev) => ({
         ...prev,
-        [postId]: prev[postId]?.map((comment) => (comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment)) || [],
+        [postId]:
+          prev[postId]?.map((comment) =>
+            comment.id === data.id ? { ...data, likes: (comment.likes ?? 0) + 1 } : comment,
+          ) || [],
       }))
       return data
     },
-    [comments, setComments],
+  })
+
+  const addComment = useCallback(
+    (payload: AddCommentPayload) => addCommentMutation.mutateAsync(payload),
+    [addCommentMutation],
+  )
+
+  const updateComment = useCallback(
+    (id: number, body: string) => updateCommentMutation.mutateAsync({ id, body }),
+    [updateCommentMutation],
+  )
+
+  const deleteComment = useCallback(
+    (id: number, postId: number) => deleteCommentMutation.mutateAsync({ id, postId }),
+    [deleteCommentMutation],
+  )
+
+  const likeComment = useCallback(
+    (id: number, postId: number) => likeCommentMutation.mutateAsync({ id, postId }),
+    [likeCommentMutation],
   )
 
   return {

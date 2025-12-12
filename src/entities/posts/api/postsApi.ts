@@ -6,6 +6,12 @@ export const fetchPostsApi = async (limit: number, skip: number): Promise<PostsR
   return data
 }
 
+export const searchPostsApi = async (query: string): Promise<PostsResponse> => {
+  const response = await fetch(`/api/posts/search?q=${encodeURIComponent(query)}`)
+  const data = await response.json()
+  return data
+}
+
 export const fetchPostsByTagApi = async (tag: string): Promise<PostsResponse> => {
   const response = await fetch(`/api/posts/tag/${tag}`)
   const data = await response.json()

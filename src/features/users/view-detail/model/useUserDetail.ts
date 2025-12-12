@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import type { UserDetail } from "../../../../entities/users/model/types"
 import { fetchUserByIdApi } from "../../../../entities/users/api/usersApi"
 
@@ -12,43 +12,11 @@ interface UseUserDetailResult {
 }
 
 export const useUserDetail = ({ userId }: UseUserDetailOptions): UseUserDetailResult => {
-  const [user, setUser] = useState<UserDetail | null>(null)
-  const [loading, setLoading] = useState(false)
+  const { data, isLoading } = useQuery({
+    queryKey: ["user", userId],
+    queryFn: () => fetchUserByIdApi(userId as number),
+    enabled: !!userId,
+  })
 
-  useEffect(() => {
-    if (!userId) {
-      setUser(null)
-      return
-    }
-
-    let cancelled = false
-
-    const load = async () => {
-      setLoading(true)
-      try {
-        const data = await fetchUserByIdApi(userId)
-        if (!cancelled) {
-          setUser(data)
-        }
-      } catch (error) {
-        console.error("사용자 정보 가져오기 오류:", error)
-        if (!cancelled) {
-          setUser(null)
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false)
-        }
-      }
-    }
-
-    load()
-
-    return () => {
-      cancelled = true
-    }
-  }, [userId])
-
-  return { user, loading }
+  return { user: data ?? null, loading: isLoading }
 }
-

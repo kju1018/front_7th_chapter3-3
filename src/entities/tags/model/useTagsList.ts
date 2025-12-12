@@ -1,4 +1,5 @@
-import { useCallback, useEffect } from "react"
+import { useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useSetAtom } from "jotai"
 import { tagsAtom } from "./tagsAtoms"
 import { fetchTagsApi } from "../api/tagsApi"
@@ -6,20 +7,19 @@ import { fetchTagsApi } from "../api/tagsApi"
 export const useTagsList = () => {
   const setTags = useSetAtom(tagsAtom)
 
-  const loadTags = useCallback(async () => {
-    try {
-      const data = await fetchTagsApi()
-      setTags(data)
-    } catch(error) {
-      console.error("태그 가져오기 오류:", error)
-    }
-  }, [setTags])
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["tags"],
+    queryFn: fetchTagsApi,
+  })
 
   useEffect(() => {
-    loadTags()
-  }, [loadTags])
+    if (data) {
+      setTags(data)
+    }
+  }, [data, setTags])
 
   return {
-    loadTags,
+    loading: isLoading,
+    error,
   }
 }

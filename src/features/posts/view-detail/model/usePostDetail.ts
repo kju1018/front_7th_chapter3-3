@@ -17,7 +17,8 @@ export const usePostDetail = ({ postId }: UsePostDetailOptions) => {
     if (postId) {
       fetchComments(postId)
     }
-  }, [postId, fetchComments])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postId])
 
   const handleLike = async (id: number, postIdForComment: number) => {
     try {
@@ -41,4 +42,3 @@ export const usePostDetail = ({ postId }: UsePostDetailOptions) => {
     handleDelete,
   }
 }
-
